@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using PlatformService.Data;
 using PlatformService.Data.Interfaces;
+using PlatformService.SyncDataServices.Http;
+using PlatformService.SyncDataServices.Http.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,17 +16,20 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(opt => opt.UseInMemoryDatabase("InMemDB"));
 
 builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
+builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+Console.WriteLine($"--> CommandService Base Url: {app.Configuration["CommandServiceBaseUrl"]}");
+
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
